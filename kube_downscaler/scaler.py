@@ -1,6 +1,8 @@
+import os
 import datetime
 import logging
 import pykube
+import pytz
 from typing import FrozenSet
 
 from kube_downscaler import helper
@@ -157,6 +159,10 @@ def scale(namespace: str, upscale_period: str, downscale_period: str,
     api = helper.get_kube_api()
 
     now = datetime.datetime.utcnow()
+    tz = pytz.timezone(os.environ['DESIRED_TZ'])
+    now_new_tz = tz.fromutc(now.replace(tzinfo=tz))
+    now = now_new_tz
+
     forced_uptime = pods_force_uptime(api, namespace)
 
     if 'deployments' in include_resources:
